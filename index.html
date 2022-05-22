@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Chatアプリ</title>
+<link rel="stylesheet" href="line.css">
+</head>
+<body>
+
+<!-- コンテンツ表示画面 -->
+
+<div id="title">
+    名前: <input type="text" id="uname">
+
+</div>
+
+<div>
+    <textarea name="" id="text"></textarea>
+    <button id="send">送信📧</button>
+
+
+</div>
+
+<div id="output"></div>
+
+
+<!--/ コンテンツ表示画面 -->
+
+
+
+<!-- JQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- JQuery -->
+
+
+<!--** 以下Firebase **-->
+<script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.8.1/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved }
+        from "https://cdnjs.cloudflare.com/ajax/libs/firebase/9.8.1/firebase-database.min.js"; 
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "",
+      authDomain: "fir-demo-7d9d7.firebaseapp.com",
+      projectId: "fir-demo-7d9d7",
+      storageBucket: "fir-demo-7d9d7.appspot.com",
+      messagingSenderId: "25702888997",
+      appId: "1:25702888997:web:f6025b700c0ecbd9d171cc"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+
+    const db = getDatabase(app);
+    const dbRef = ref(db, 'chat');
+    
+    $('#send').on('click',function(){
+        const msg ={
+            uname: $('#uname').val(),
+            text: $('#text').val()
+        }
+
+        const newPostRef = push(dbRef);
+        set(newPostRef, msg);
+        // const uname = $('#uname').val();
+        // const text = $('#text').val();
+    });
+
+    // $('#remove').on('click',function(){
+    //     const msg ={
+
+    //         uname: $('#uname').val(),
+    //         text: $('#text').val()
+    //     }
+    //     const newPostRef = push(dbRef);
+    //     remove(newPostRef, msg);
+
+    // });
+
+    onChildAdded(dbRef, function(data){
+        const msg = data.val();
+        const key = data.key;
+        console.log(msg,key); 
+        const h = `<p id="${key}" class="message">${msg.uname}:${msg.text}  <button id="remove">🗑️</button></p>`
+        $('#output').append(h);
+        $('#output').on('click','.message', function(){
+
+            // const msg = data.val();
+            // const key = data.key;
+
+            const key = '#'+data.key;
+ 
+            $('#remove').on('click',function(){
+                $(key).remove();
+            // remove(ref(db,"chat"));
+        })
+
+            // 1. pタグのid (=firebaseのキー情報)を取得
+            //   →ヒント: クリックされた要素自体を取得するのは $(this) と書く
+
+            // alert('クリックされた')
+        });
+        //chatの中身が新しく増えた際に加えて下さい　増えたたびに教えてくれる
+        //pタブにkeyのID　とclassを追記
+    });
+
+    onChildRemoved(dbRef, function(data){
+        // const key = data.key;
+
+        const key = '#'+data.key;
+        $(key).remove();
+
+        // $(output).remove();
+
+
+        // $('#remove').on('click',function(){
+        //     $(key).remove(ref(db,'chat'));
+        // })
+    })
+
+
+    $('#text').on('keydown', function(e){
+        if(e.keyCode === 13){
+            const msg ={
+            uname: $('#uname').val(),
+            text: $('#text').val()
+        }
+
+        const newPostRef = push(dbRef);
+        set(newPostRef, msg);
+        }
+        console.log(e.keyCode)
+
+
+    });
+    //e eventを入れる  keycodeは何番のkeycodeという意味となっている　enter keyは13番となっている
+
+  </script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
